@@ -1,6 +1,6 @@
 .env
+.idea
 fabrica
 infra
 venv
-docker-compose.yml
 __pycache__

@@ -24,11 +24,10 @@ Putting everything to IPFS allows you to open STC in your browser or on your ser
 
 ## Components
 
-- [Web STC](/web) is a browser-based interface with embedded search engine that can be entirely deployed on IPFS and used in browsers
 - [GECK](/geck) is a Python library and Bash tool for setting up and interacting with STC programmatically
 - [Cybrex AI](/cybrex) library pairs STC with AI tools such as OpenAI or free LLM for processing stored data
 - [STC Hub API](https://libstc.cc/#/help/stc-hub-api) is plain API for accessing scholarly publications by their DOIs through `kubo` command line tools or even through HTTP.
-- [Telegram Nexus Bot](/tgbot) allows users to access STC via Telegram, one of the most popular messaging platforms.
+- [Telegram Bot](/bot) allows users to access STC via Telegram, one of the most popular messaging platforms.
 
 ## Roadmap
 

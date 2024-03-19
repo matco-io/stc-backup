@@ -1,0 +1,1 @@
+# Example bot for Telegram that uses Trident Server for receiving papers.
