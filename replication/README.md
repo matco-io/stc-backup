@@ -29,8 +29,7 @@ ToDo.
 ### Step 1b: Setting up Iroh replication using Trident server
 
 Iroh allows high-performance replication by launching Docker image with the Trident application on the server.
-Trident is laying out files in a plain folder, making them available for any further usage,
-keep internal records for managing data and allowing to push data further to IPFS (no-copy mode) or S3.
+Trident is laying out files in a plain folder, making them available for any further usage.
 
 #### Step 1b.1: Configure Trident
 
@@ -69,7 +68,7 @@ Metadata takes only about tens of GBs right now, but blobs take up 100TB.
 
 You also can download only things that have particular prefixes in the collection. 
 As the DOIs collection has items named after DOIs, you can configure your download policy to download only particular publishers. 
-For example: `{"NothingExcept": [{"Prefix": "10.1016/"}]}`.
+For example: `{"NothingExcept": [{"Prefix": "10.1016/"}]}` will download Elsevier publications (started from 10.1016 prefix).
 If you want to download everything and have sufficient disk storage, you can use: `{"EverythingExcept": []}`.
 The download policy may be changed later in the `config.yaml` file.
 

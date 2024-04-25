@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-import urllib.parse
 
 import confuse
 from izihawa_loglib import configure_logging
@@ -27,14 +26,14 @@ async def main():
     @telegram_client.on(events.NewMessage)
     async def file_handler(event):
         maybe_doi = event.raw_text.strip()
-        file_name = urllib.parse.quote_plus(f'{maybe_doi}.pdf')
+        file_name = f'{maybe_doi}.pdf'
         logging.info(f"received request {maybe_doi}")
-        content = await trident_client.table_get('dois', file_name)
-        if not content:
+        response = await trident_client.table_get('dois', file_name)
+        if not response:
             return await event.reply(f"`{maybe_doi}` not found!")
         await telegram_client.send_file(
             entity=event.chat_id,
-            file=content,
+            file=response['content'],
             attributes=[DocumentAttributeFilename(file_name)],
         )
 
