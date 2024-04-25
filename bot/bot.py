@@ -29,7 +29,7 @@ async def main():
         maybe_doi = event.raw_text.strip()
         file_name = urllib.parse.quote_plus(f'{maybe_doi}.pdf')
         logging.info(f"received request {maybe_doi}")
-        content = await trident_client.table_get('science', file_name)
+        content = await trident_client.table_get('dois', file_name)
         if not content:
             return await event.reply(f"`{maybe_doi}` not found!")
         await telegram_client.send_file(

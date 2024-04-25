@@ -4,29 +4,110 @@ The Standard Template Construct (STC) can be conveniently replicated on your per
 The STC consists of several critical components: dataset, search metadata,
 and a web interface with a search engine (referred to as Web STC in subsequent references).
 
-Replicating the search metadata and web interface can enhance your search performance. 
-Simultaneously, replicating the dataset can convert your computer into a comprehensive, standalone library.
+Replicating the search metadata and web interface can enhance your search performance and is covered in other guides. 
+Simultaneously, replicating the dataset can convert your computer into a comprehensive, standalone library, and we are going to replicate it.
 
 ## Replicating the dataset of books and scholarly publications.
 
-**Choose only 1a either 1b according to your needs and skills**
-
 The STC is using a mixed scheme for dataset replication.
-Replication between core seeders with higher technical skills is done with [Iroh](https://iroh.computer/docs).
+Replication between core seeders with higher technical skills is done with [Iroh](https://iroh.computer/docs). Then, these seeders
+re-publish the data using any other tools, including IPFS.
 
 ### Step 0: Prepare Server
 
 For better performance you should have CoW and reflink-aware filesystem (we are using BTRFS, but ZFS/XFS may also be suitable).
-Other file systems are also okay, but you should keep in mind that Trident laying out files in a single directory 
-(so check how many files your FS may put in a single directory without degrading) and using reflinks internally.
+Other file systems are also okay, but you should keep in mind that for 
+re-publishing you should use Trident configured to lay out files in a disk directory with the possibility to utilize reflinks internally. 
+So check how many files your FS may put in a single directory without degrading.
 
-### Step 1a: Setting up Iroh replication using Trident server
+**Choose only 1a (easy) either 1b (hard) according to your needs and skills**
+
+### Step 1a: Setting up Iroh replication using official Iroh CLI
+
+ToDo.
+
+### Step 1b: Setting up Iroh replication using Trident server
 
 Iroh allows high-performance replication by launching Docker image with the Trident application on the server.
 Trident is laying out files in a plain folder, making them available for any further usage,
 keep internal records for managing data and allowing to push data further to IPFS (no-copy mode) or S3.
 
-#### Step 1a.1 (optional): Setup IPFS
+#### Step 1b.1: Configure Trident
+
+For example, if you have your disks at /mnt/disk:
+
+```bash
+cd /mnt/disk
+mkdir trident
+docker pull izihawa/trident:latest
+docker run izihawa/trident:latest generate-config /trident > trident/config.yaml
+```
+
+Now, `trident/config.yaml` has config for the Trident Server.
+
+#### Step 1b.2: Launch Trident
+
+```bash
+docker run -e=RUST_LOG=info -i -t -p 7080:80 -p 11204:11204 -p 4919:4919 -v $(pwd)/trident:/trident izihawa/trident:latest serve --config-path /trident/config.yaml
+```
+
+Now you will have Trident Server listening on 7080 port for commands.
+
+#### Step 1b.3: Join the STC replication
+
+Further, you have two options: using internal storage or external storage.
+
+- Internal storage allows you to replicate multiple collections without duplicating if collections are intersected.
+- External storage lays out data files on the disk with readable names. It is harder to use with multiple collections but allows you to integrate Trident with any other system that may operate with files on disk. For example, you can seed the same files using IPFS/BitTorrent or set up your own web server that will use these files.
+
+Also, you could configure an important attribute: the download policy.
+
+Collections consist of two parts: metadata and blobs.
+Metadata allows you to know what is stored in collections, and blobs are the files themselves.
+The download policy defines what blobs should be automatically downloaded by your node.
+Metadata takes only about tens of GBs right now, but blobs take up 100TB.
+
+You also can download only things that have particular prefixes in the collection. 
+As the DOIs collection has items named after DOIs, you can configure your download policy to download only particular publishers. 
+For example: `{"NothingExcept": [{"Prefix": "10.1016/"}]}`.
+If you want to download everything and have sufficient disk storage, you can use: `{"EverythingExcept": []}`.
+The download policy may be changed later in the `config.yaml` file.
+
+You should receive replication token using [Nexus bots](https://t.me/science_nexus4_bot) in Telegram by typing `/seed` there.
+Then, add received token into the following command
+
+#### Step 1b.3.1a: Use internal storage
+
+```bash 
+# Internal storage 
+curl -H "Content-Type: application/json" "http://localhost:7080/tables/dois/import/" \
+--data '{"ticket": "<token>", "download_policy": {"NothingExcept": []}}'
+```
+
+#### Step 1b.3.1b: Use external storage
+
+```bash 
+# Internal storage 
+curl -H "Content-Type: application/json" "http://localhost:7080/tables/dois/import/" \
+--data '{"ticket": "<token>", "storage": "default", "download_policy": {"NothingExcept": []}}'
+```
+**Initial import may take a long time (hours)!** Leave it alone for a while and check for 
+```
+INFO sync:accept: sync finished sent=0 recv=8606150 t_connect=12.008374125s t_process=6421.649626875s me=<...> peer=<...> namespace=srs6ctvbs6rq6mxp
+```
+log line in Terminal.
+
+#### Step 1b.4
+
+Try to read file:
+
+```bash 
+curl -H "Content-Type: application/json" "http://localhost:7080/tables/dois/10.1016/j.scr.2021.102334.pdf"
+```
+
+Congratulations, you have just configured Trident!
+
+#### Step 1b.5. IPFS Configuring and mirroring (optional, only if you have used external storage)
 
 Follow the <a href="https://docs.ipfs.tech/install/command-line/#install-official-binary-distributions" target="_blank">official guide</a>. 
 Ensure you select the correct binaries for your CPU architecture. 
@@ -44,63 +125,8 @@ ipfs config Reprovider.Interval --json '"23h"'
 ```
 Set the environment variable <code>GOMEMLIMIT=16GB</code> (choose right amount for your server) before launching the daemon to limit memory usage.
 
-#### Step 1a.2: Configure Trident
-
-For example, if you have your disks at /mnt/disk:
+Then, startup mirroring
 
 ```bash
-cd /mnt/disk
-mkdir trident
-docker pull izihawa/trident:latest
-docker run izihawa/trident:latest generate-config /trident > trident/config.yaml
+inotifywait -e move -m --format "%w%f" trident/data/shard0/dois/ | xargs -I{} ipfs add --nocopy --hash=blake3 --pin --chunker=size-1048576 "{}"
 ```
-
-Now, `trident/config.yaml` has config for the Trident Server.
-If you have done `Step 1a.1` and would like to additionally configure pushing data to IPFS network,
-follow [Trident documentation section](https://github.com/izihawa/trident?tab=readme-ov-file#configure-ipfs-sink) on how to add IPFS pushing.
-If you would like to configure pushing to S3, follow [Trident documentation section](https://github.com/izihawa/trident?tab=readme-ov-file#configure-s3-sink) on how to add S3 pushing.
-
-
-#### Step 1a.3: Launch Trident
-
-```bash
-docker run -e=RUST_LOG=info -i -t -p 7080:80 -p 11204:11204 -p 4919:4919 -v $(pwd)/trident:/trident izihawa/trident:latest serve --config-path /trident/config.yaml
-```
-
-Now you will have Trident Server listening on 7080 port for commands.
-
-#### Step 1a.4: Join the STC replication
-
-Firstly, receive replication token using [Nexus bots](https://t.me/science_nexus4_bot) in Telegram by typing `/seed` there.
-Then, add received token into the following command
-
-```bash 
-curl -H "Content-Type: application/json" "http://localhost:7080/tables/nexus_science/import/" \
---data '{"ticket": "token", "storage": "default", "download_policy": {"NothingExcept": []}}'
-```
-
-Trident will replicate metadata (list of available DOIs) entirely in any case,
-but downloading the actual dataset is configured by the download policy and is done on-demand during requests for files via GET requests to Trident.
-The example above sets the download policy to NothingExcept, indicating that no files will be downloaded by default.
-If you have sufficient disk storage, you may consider changing it to EverythingExcept.
-Furthermore, you might want to specify the exact PDFs you wish to replicate by their prefixes.
-
-```json
-{"NothingExcept": [{"Prefix": "10.1016/"}]}
-```
-
-**Initial import may take a long time!** Leave it alone for a while.
-
-#### Step 1a.5
-
-Try to read file:
-
-```bash 
-curl -H "Content-Type: application/json" "http://localhost:7080/tables/nexus_science/10.1016%2fj.scr.2021.102334.pdf/"
-```
-
-Congratulations, you have just configured Trident!
-
-### Step 1b: Setting up Iroh replication using official Iroh CLI
-
-ToDo.
