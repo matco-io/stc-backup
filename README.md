@@ -5,13 +5,13 @@ You've arrived at the repository for [STC](https://libstc.cc), the library, sear
 
 ![](/web/public/favicon.svg)
 
-[STC](https://libstc.cc) | [Help Center](https://libstc.cc/#/help)
+[STC](https://libstc.cc)
 
 ## Getting Started
 
 - Explore our search features at [Web STC](https://libstc.cc), or through one of the Telegram bots listed in the bio of our [channel](https://t.me/nexus_search) (not an ad, just a safety)
-- [Discover](https://libstc.cc/#/help/replicate) how to set up your own STC instance, enabling you to enjoy the same search capabilities in your local environment
-- Learn about [how to access large corpus](/geck) of high-quality scholarly texts using Python and [use them in AI apps](/cybrex)
+- [Discover](/replication) how to set up your own STC instance, enabling you to enjoy the same search capabilities in your local environment
+- Learn about [how to access large corpus](/geck) of high-quality scholarly texts using Python
 
 ## Details
 
@@ -26,7 +26,6 @@ Putting everything to IPFS allows you to open STC in your browser or on your ser
 
 - [GECK](/geck) is a Python library and Bash tool for setting up and interacting with STC programmatically
 - [Cybrex AI](/cybrex) library pairs STC with AI tools such as OpenAI or free LLM for processing stored data
-- [STC Hub API](https://libstc.cc/#/help/stc-hub-api) is plain API for accessing scholarly publications by their DOIs through HTTP.
 - [Telegram Bot](/bot) allows users to access STC via Telegram, one of the most popular messaging platforms.
 
 ## Roadmap

@@ -20,13 +20,13 @@ Other file systems are also okay, but you should keep in mind that for
 re-publishing you should use Trident configured to lay out files in a disk directory with the possibility to utilize reflinks internally. 
 So check how many files your FS may put in a single directory without degrading.
 
-**Choose only 1a (easy) either 1b (hard) according to your needs and skills**
+**Choose only Way 1a (easy) either Way 1b (hard) according to your needs and skills**
 
-### Step 1a: Setting up Iroh replication using official Iroh CLI
+### Way 1a: Setting up Iroh replication using official Iroh CLI
 
 ToDo.
 
-### Step 1b: Setting up Iroh replication using Trident server
+### Way 1b: Setting up Iroh replication using Trident server
 
 Iroh allows high-performance replication by launching Docker image with the Trident application on the server.
 Trident is laying out files in a plain folder, making them available for any further usage.
@@ -72,15 +72,15 @@ For example: `{"NothingExcept": [{"Prefix": "10.1016/"}]}` will download Elsevie
 If you want to download everything and have sufficient disk storage, you can use: `{"EverythingExcept": []}`.
 The download policy may be changed later in the `config.yaml` file.
 
-You should receive replication token using [Nexus bots](https://t.me/science_nexus4_bot) in Telegram by typing `/seed` there.
-Then, add received token into the following command
+You should receive replication ticket using [Nexus bots](https://t.me/science_nexus4_bot) in Telegram by typing `/seed` there.
+Then, add received ticket into the following command
 
 #### Step 1b.3.1a: Use internal storage
 
 ```bash 
 # Internal storage 
 curl -H "Content-Type: application/json" "http://localhost:7080/tables/dois/import/" \
---data '{"ticket": "<token>", "download_policy": {"NothingExcept": []}}'
+--data '{"ticket": "<ticket>", "download_policy": {"NothingExcept": []}}'
 ```
 
 #### Step 1b.3.1b: Use external storage
@@ -88,7 +88,7 @@ curl -H "Content-Type: application/json" "http://localhost:7080/tables/dois/impo
 ```bash 
 # Internal storage 
 curl -H "Content-Type: application/json" "http://localhost:7080/tables/dois/import/" \
---data '{"ticket": "<token>", "storage": "default", "download_policy": {"NothingExcept": []}}'
+--data '{"ticket": "<ticket>", "storage": "default", "download_policy": {"NothingExcept": []}}'
 ```
 **Initial import may take a long time (hours)!** Leave it alone for a while and check for 
 ```
