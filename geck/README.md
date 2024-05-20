@@ -7,10 +7,10 @@ GECK includes embedded search engine [Summa](https://github.com/izihawa/summa), 
 
 Firstly, You should have [installed IPFS](https://libstc.cc/#/help/install-ipfs)
 
-Pre-built wheels of `stc-geck` are available for Python 3.8, 3.9, 3.10 and 3.11
+Pre-built wheels of `libstc-geck` are available for Python 3.8, 3.9, 3.10 and 3.11
 
 ```bash
-pip install stc-geck
+pip install libstc-geck
 ```
 
 ## Usage

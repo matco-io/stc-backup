@@ -17,28 +17,28 @@ class ApiUploader:
         rsplitted = base_name.rsplit('.', 1)
         if len(rsplitted) < 2:
             raise ValueError('`file_path` should be a proper file with extension')
-        file_name = rsplitted[0]
         # Elsevier
-        if file_name.startswith('1-s2.0'):
-            alternative_id = file_name[7:-10]
+        if base_name.startswith('1-s2.0'):
+            alternative_id = base_name[7:-10]
             async with self._session as session:
                 crossref_response = await session.get(f'https://api.crossref.org/works/?filter=alternative-id:{alternative_id}')
                 meta = await crossref_response.json()
                 if meta['message']['items']:
                     return meta['message']['items'][0]['DOI']
         unquoted_file_name = urllib.parse.quote(file_path)
-        if re.match(file_name, DOI_REGEX):
+        if re.match(DOI_REGEX, base_name):
             return unquoted_file_name
 
-    async def upload_file(self, file_path: str, external_id: str = None):
-        if not external_id:
-            external_id = await self.guess_external_id(file_path)
+    async def upload_file(self, file_path_or_data: str | bytes, external_id: str = None):
+        if not external_id and isinstance(file_path_or_data, str):
+            external_id = await self.guess_external_id(file_path_or_data)
         if not external_id:
             raise ValueError("Can't figure out the DOI")
+
         form_data = aiohttp.FormData()
         form_data.add_field(
             'file',
-            open(file_path, 'rb'),
+            open(file_path_or_data, 'rb') if isinstance(file_path_or_data, str) else file_path_or_data,
             filename=urllib.parse.quote(external_id) + '.pdf',
         )
         form_data.add_field(
