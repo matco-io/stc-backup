@@ -2,6 +2,10 @@
 1. **Install with:**
 ```bash
 curl -fsSL https://sh.iroh.computer/install.sh | sh
+iroh console --start
+author new --switch
+doc new --switch
+doc share write
 ```
 
 1. **Confirm Installation:**
